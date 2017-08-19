@@ -1,4 +1,5 @@
 import os
+import datetime
 from flask import Flask, render_template, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
@@ -23,6 +24,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+# MODEL
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -45,6 +48,7 @@ class Account(db.Model):
     date_updated = db.Column(db.DateTime())
 
 
+# FORM
 class LoginForm(FlaskForm):
     username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
     password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
@@ -56,6 +60,12 @@ class RegistrationForm(FlaskForm):
                                              Email(message='Invalid Email'), Length(max=50)])
     username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
     password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
+
+
+class AccountForm(FlaskForm):
+    website = StringField('for website?', validators=[InputRequired()])
+    username_used = StringField('your username used?', validators=[InputRequired()])
+    password_used = StringField('your password used?', validators=[InputRequired()])
 
 
 @app.route('/')
@@ -98,13 +108,33 @@ def signup():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', name=current_user.username)
+    list_of_accounts = Account.query.order_by(Account.id.desc()).all()
+
+    return render_template('dashboard.html',
+                           name=current_user.username,
+                           accounts=list_of_accounts)
 
 
-@app.route('/account')
+@app.route('/account', methods=['GET', 'POST'])
 @login_required
 def account():
-    return render_template('account.html')
+    form = AccountForm()
+
+    if form.validate_on_submit():
+        today = datetime.datetime.today()
+
+        new_account = Account(used_for=form.website.data,
+                              username_used=form.username_used.data,
+                              password_used=form.password_used.data,
+                              date_created=today,
+                              date_updated=today)
+
+        db.session.add(new_account)
+        db.session.commit()
+
+        return redirect(url_for('dashboard'))
+
+    return render_template('account.html', form=form)
 
 
 @app.route('/logout')
