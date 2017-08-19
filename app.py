@@ -29,8 +29,15 @@ class User(UserMixin, db.Model):
 
 class LoginForm(FlaskForm):
     username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
-    password = StringField('password', validators=[InputRequired(), Length(min=8, max=80)])
+    password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
     remember = BooleanField('remember me')
+
+
+class RegistrationForm(FlaskForm):
+    email = StringField('email', validators=[InputRequired(),
+                                             Email(message='Invalid Email'), Length(max=50)])
+    username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
+    password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
 
 
 @app.route('/')
@@ -38,16 +45,22 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/login', methods=['POST', 'GET'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
 
+    if form.validate_on_submit():
+        return '<h1>' + form.username.data + ' ' + form.password.data + '</h1>'
     return render_template('login.html', form=form)
 
 
-@app.route('/signup')
+@app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    return render_template('signup.html')
+    form = RegistrationForm()
+
+    if form.validate_on_submit():
+        return '<h1>' + form.username.data + ' ' + form.email.data + ' ' + form.password.data + '</h1>'
+    return render_template('signup.html', form=form)
 
 
 @app.route('/dashboard')
