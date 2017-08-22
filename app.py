@@ -1,16 +1,15 @@
 import os
 import datetime
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request
 from flask_bootstrap import Bootstrap
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField
-from wtforms.validators import InputRequired, Email, Length
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin
+
+from flask_login import LoginManager
 from flask_login import login_user, logout_user, login_required, current_user
 
-# FOR SECURITY IN PASSWORD ENTRY
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from forms import LoginForm, RegistrationForm, AccountForm
+from models import db, User, Account
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////' + os.path.join(app.root_path, 'pm.db')
@@ -18,54 +17,17 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 app.config['SECRET_KEY'] = 'thisissecret'
 
 Bootstrap(app)
-db = SQLAlchemy(app)
+# db = SQLAlchemy(app)
+db.init_app(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# MODEL
-
-
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(15), unique=True)
-    email = db.Column(db.String(50), unique=True)
-    password = db.Column(db.String(80))
-
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
-
-
-class Account(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    used_for = db.Column(db.String(50))
-    username_used = db.Column(db.String(15))
-    password_used = db.Column(db.String(80))
-    date_created = db.Column(db.DateTime())
-    date_updated = db.Column(db.DateTime())
-
-
-# FORM
-class LoginForm(FlaskForm):
-    username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
-    password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
-    remember = BooleanField('remember me')
-
-
-class RegistrationForm(FlaskForm):
-    email = StringField('email', validators=[InputRequired(),
-                                             Email(message='Invalid Email'), Length(max=50)])
-    username = StringField('username', validators=[InputRequired(), Length(min=4, max=15)])
-    password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
-
-
-class AccountForm(FlaskForm):
-    website = StringField('for website?', validators=[InputRequired()])
-    username_used = StringField('your username used?', validators=[InputRequired()])
-    password_used = StringField('your password used?', validators=[InputRequired()])
 
 
 @app.route('/')
@@ -81,6 +43,7 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user:
             if check_password_hash(user.password, form.password.data):
+                print form.remember.data
                 login_user(user, remember=form.remember.data)
                 return redirect(url_for('dashboard'))
 
@@ -108,11 +71,26 @@ def signup():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    list_of_accounts = Account.query.order_by(Account.id.desc()).all()
+    # list_of_accounts = Account.query.order_by(Account.id.desc()).all()
+    list_of_accounts = Account.query.order_by(Account.used_for).all()
 
     return render_template('dashboard.html',
                            name=current_user.username,
                            accounts=list_of_accounts)
+
+
+@app.route('/dashboard/action')
+@login_required
+def dashboard_reveal():
+
+    request_id = request.args.get('request_id')
+
+    if request.args.get('action') == 'Reveal':
+        return "<h1>" + request_id + "</h1>"
+    elif request.args.get('action') == 'Edit':
+        return "<h1> Edit Mode " + request_id + "</h1>"
+    elif request.args.get('action') == 'Delete':
+        return "<h1> Delete Mode " + request_id + "</h1>"
 
 
 @app.route('/account', methods=['GET', 'POST'])

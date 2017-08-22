@@ -1,12 +1,8 @@
-{% extends "bootstrap/base.html" %}
-
-{% block title %}
-Password Manager App
-{% endblock %}
+{% extends "base.html" %}
 
 {% block styles %}
-{{super()}}
-<link rel="stylesheet" href="{{url_for('.static', filename='starter-template.css')}}">
+    {{super()}}
+    <link rel="stylesheet" href="{{url_for('.static', filename='starter-template.css')}}">
 {% endblock %}
 
 {% block content %}
@@ -31,12 +27,21 @@ Password Manager App
       </div>
     </nav>
 
-    <div class="container">
+    <!-- JUMBOTRON -->
+    <!--
+    <div class="jumbotron text-center">
+        <div class="container">
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt</p>
+            <a href="#" class="btn btn-primary">Read More</a>
+        </div>
+    </div> -->
 
+    <div class="container">
       <div class="starter-template">
-        <h1>RGB Password Manager App</h1>
-        <p class="lead">Use this app as a way to save your account in any websites.<br>
-        All you get is to entered all your account.</p>
+        <h1>RGB Password Manager <span class="label label-primary">App</span></h1>
+        <h1>Hello <span class="label label-info">Everyone, </span></h1>
+        <p class="lead">Use this app to collect your account information in any websites.<br>
+        All you have to do is to entered all your account details.</p>
       </div>
 
     </div><!-- /.container -->
