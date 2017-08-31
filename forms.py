@@ -23,8 +23,16 @@ class RegistrationForm(FlaskForm):
 
 
 class AccountForm(FlaskForm):
-    website = StringField('for website?', validators=[InputRequired()])
-    username_used = StringField('your username used?',
+    url = StringField('Where it used {url, apps name, website}:', validators=[InputRequired()])
+    username_used = StringField('Username used?',
                                 validators=[InputRequired()])
-    password_used = StringField('your password used?',
+    password_used = StringField('Password used?',
+                                validators=[InputRequired()])
+
+
+class AccountFormEdit(FlaskForm):
+    url = StringField('Where it used {url, apps name, website}:', validators=[InputRequired()])
+    username_used = StringField('Username used?',
+                                validators=[InputRequired()])
+    password_used = StringField('Password used?',
                                 validators=[InputRequired()])
