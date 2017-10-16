@@ -96,7 +96,7 @@ Dashboard
                 </tr>
               </thead>
               <tbody>
-                {% for account in accounts %}
+                {% for account in accounts.items %}
                 <form class="form-inline" action="/dashboard/action">
                 <tr>
                     <td>{{ account.id }}</td>
@@ -110,8 +110,19 @@ Dashboard
                 </tr>
                 </form>
                 {% endfor %}
+
+
               </tbody>
             </table>
+            <div class="pagination">
+            {% for page in accounts.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+                {% if page %}
+                    <a href="{{ url_for('dashboard', page_num=page) }}">{{ page }}</a>
+                {% else %}
+                    ...
+                {% endif %}
+            {% endfor %}
+            </div>
           </div>
         </div>
       </div>

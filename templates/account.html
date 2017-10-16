@@ -23,7 +23,7 @@
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        <li><a href="{{ url_for('dashboard', page_num=1) }}">Dashboard</a></li>
         <li><a href="{{ url_for('account') }}">Account</a></li>
         <li><a href="#">Profile</a></li>
         <li><a href="{{ url_for('logout') }}">Log Out</a></li>

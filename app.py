@@ -43,7 +43,7 @@ def login():
         if user:
             if check_password_hash(user.password, form.password.data):
                 login_user(user, remember=form.remember.data)
-                return redirect(url_for('dashboard'))
+                return redirect(url_for('dashboard', page_num=1))
 
         return '<h1> Invalid username or password </h1>'
 
@@ -66,13 +66,14 @@ def signup():
     return render_template('signup.html', form=form)
 
 
-@app.route('/dashboard')
+@app.route('/dashboard/<int:page_num>')
 @login_required
-def dashboard():
+def dashboard(page_num):
     # list_of_accounts = Account.query.order_by(Account.id.desc()).all()
     # list_of_accounts = Account.query.order_by(Account.url).all()
 
-    list_of_accounts = Account.query.filter_by(user_id=current_user.id).all()
+    # list_of_accounts = Account.query.filter_by(user_id=current_user.id).all()
+    list_of_accounts = Account.query.paginate(per_page=5, page=page_num, error_out=True)
 
     return render_template('dashboard.html',
                            name=current_user.username,
@@ -108,7 +109,7 @@ def dashboard_reveal():
         db.session.delete(account)
         db.session.commit()
 
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('dashboard', page_num=1))
 
 
 @app.route('/account', methods=['GET', 'POST'])
@@ -129,7 +130,7 @@ def account():
         db.session.add(new_account)
         db.session.commit()
 
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('dashboard', page_num=1))
 
     return render_template('account.html', form=form)
 
@@ -150,7 +151,7 @@ def account_edit(post_id):
 
         db.session.commit()
 
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('dashboard', page_num=1))
 
 
 @app.route('/logout')
