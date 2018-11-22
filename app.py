@@ -15,6 +15,7 @@ app.config.from_object('config.BaseConfig')
 # INITIALIZATION
 Bootstrap(app)
 db.app = app
+# THIS IS FOR THE MODELS INITIALIZATION IN APP.PY
 db.init_app(app)
 migrate.init_app(app)
 mail = Mail(app)
@@ -73,7 +74,7 @@ def dashboard(page_num):
     # list_of_accounts = Account.query.order_by(Account.url).all()
 
     # list_of_accounts = Account.query.filter_by(user_id=current_user.id).all()
-    list_of_accounts = Account.query.paginate(per_page=5, page=page_num, error_out=True)
+    list_of_accounts = Account.query.paginate(per_page=10, page=page_num, error_out=True)
 
     return render_template('dashboard.html',
                            name=current_user.username,
